@@ -17,7 +17,7 @@ class BaseAppDrawer extends ConsumerWidget {
           // Cabeçalho
           Container(
             width: double.infinity,
-            height: 220,
+            height: 221,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
             ),
