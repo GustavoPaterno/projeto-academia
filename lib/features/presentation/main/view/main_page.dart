@@ -20,7 +20,6 @@ class _MainPageState extends ConsumerState<MainPage> {
   final List<Widget> _pages = const [
     DatePage(),
     HomePage(),
-    LoginPage(),
   ];
 
   @override
@@ -100,20 +99,20 @@ class _MainPageState extends ConsumerState<MainPage> {
               ),
               label: '',
             ),
-            BottomNavigationBarItem(
-              icon: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                child: Icon(
-                  Icons.person,
-                  size: selectedPage == 2 ? 45 : 30,
-                  color: selectedPage == 2
-                      ? Theme.of(context).colorScheme.secondaryContainer
-                      : Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              label: '',
-            ),
+            // BottomNavigationBarItem(
+            //   icon: AnimatedContainer(
+            //     duration: const Duration(milliseconds: 200),
+            //     curve: Curves.easeInOut,
+            //     child: Icon(
+            //       Icons.person,
+            //       size: selectedPage == 2 ? 45 : 30,
+            //       color: selectedPage == 2
+            //           ? Theme.of(context).colorScheme.secondaryContainer
+            //           : Theme.of(context).colorScheme.primary,
+            //     ),
+            //   ),
+            //   label: '',
+            // ),
           ],
         ),
       ),

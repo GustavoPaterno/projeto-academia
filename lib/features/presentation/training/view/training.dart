@@ -13,20 +13,55 @@ class Training extends ConsumerStatefulWidget {
 
 class TrainingState extends ConsumerState<Training> {
   @override
-  Widget build(BuildContext context) {
-    return BaseAppScaffold(
-      title: 'TREINOS',
-      leadingOnTap: BackButton(onPressed: () => context.pop()),
-      body: SingleChildScrollView(
-        child: Column(children: [
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-      BaseCardList(title: "TREINO DE HOJE", subtitle: "VER TREINO DE HOJE", leading: Icons.access_alarm_outlined),
-        ],)
-      )); 
-  }
+Widget build(BuildContext context) {
+  return BaseAppScaffold(
+    title: 'TREINOS',
+    leadingOnTap: BackButton(onPressed: () => context.pop()),
+    body: SafeArea(
+      child:
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(8),
+              children: const [
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+                BaseCardList(
+                  title: "TREINO DE HOJE",
+                  subtitle: "VER TREINO DE HOJE",
+                  leading: Icons.access_alarm_outlined,
+                ),
+              ],
+            ),
+          ),
+    ),
+  );
+}
 }

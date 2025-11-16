@@ -14,12 +14,12 @@ class MyApp extends StatelessWidget {
   routerConfig: appRouter, // <-- usa o GoRouter
   theme: ThemeData(
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color.fromARGB(249, 130, 25, 1),
+      seedColor: const Color(0xFF333333),
     ).copyWith(
-      primary: const Color.fromARGB(249, 130, 25, 1),
-      primaryContainer: Colors.orange,
+      primary: const Color(0xFF333333),
+      primaryContainer: Color(0xFF292929),
       secondary: const Color.fromARGB(249, 130, 25, 1),
-      surface: Colors.white,
+      surface: Color(0xFF333333),
     ),
     useMaterial3: true,
   ),

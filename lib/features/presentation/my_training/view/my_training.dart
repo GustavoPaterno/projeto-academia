@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:projectacademia/widgets/base/base_app_card_rec.dart';
 import 'package:projectacademia/widgets/base/base_card_list.dart';
 import 'package:projectacademia/widgets/base/base_scaffold.dart';
 
@@ -23,12 +24,12 @@ class MyTrainingState extends ConsumerState<MyTraining> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              itemCount: 5,
+              itemCount: 10,
               itemBuilder: (context, index) {
-                return BaseCardList(
+                return BaseCardListRec(
                   title: "TREINO ${index + 1}",
-                  subtitle: "VER TREINO DE HOJE",
-                  leading: Icons.fitness_center,
+                  description: "VER TREINO DE HOJE",
+                  data: "15/03/2025",
                 );
               },
             ),
@@ -38,7 +39,7 @@ class MyTrainingState extends ConsumerState<MyTraining> {
           Container(
             width: double.infinity,
             height: 150,
-            color: Theme.of(context).colorScheme.onSecondary,
+            color: Theme.of(context).colorScheme.surface,
             padding: const EdgeInsets.all(30),
             child: Center(
               child: Container(width: 100, decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Theme.of(context).colorScheme.primaryContainer,),child: Center(child: Icon(Icons.add_circle, color: Theme.of(context).colorScheme.onSecondary, size: 50,),),), ),
