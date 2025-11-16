@@ -1,21 +1,29 @@
-// import 'package:freezed_annotation/freezed_annotation.dart';
-// import 'package:flutter_data/flutter_data.dart';
-// import 'exercises.dart';
+import 'package:projectacademia/data/models/exercises.dart';
 
-// part 'historical.freezed.dart';
-// part 'historical.g.dart';
+class HistoricalModel {
+  final String id;
+  final String name;
+  final String type;
+  final String dia;
+  final List<ExerciseModel> exercises;
 
-// @DataRepository([])
-// @freezed
-// class Historical with _$Historical {
-//   const factory Historical({
-//     required String id,
-//     required String name,
-//     required String type,
-//     required String dia,
-//     required List<Exercise> exercises,
-//   }) = _Historical;
+  HistoricalModel({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.dia,
+    required this.exercises,
+  });
 
-//   factory Historical.fromJson(Map<String, dynamic> json) =>
-//       _$HistoricalFromJson(json);
-// }
+  factory HistoricalModel.fromJson(Map<String, dynamic> json) {
+    return HistoricalModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      type: json['type'] ?? '',
+      dia: json['dia'] ?? '',
+      exercises: (json['exercises'] as List)
+          .map((e) => ExerciseModel.fromJson(e))
+          .toList(),
+    );
+  }
+}

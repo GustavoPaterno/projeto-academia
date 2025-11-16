@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:projectacademia/core/providers/token_provider.dart';
 import 'package:projectacademia/features/presentation/date/view/date_page.dart';
 import 'package:projectacademia/features/presentation/home/view/home_page.dart';
 import 'package:projectacademia/features/presentation/login/view/login_page.dart';
@@ -48,7 +49,8 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   Widget build(BuildContext context) {
     final selectedPage = ref.watch(selectedPageProvider);
-
+    final token = ref.read(tokenProvider);
+    print("token: $token");
     return BaseAppScaffold(
       leading: 'assets/image1.png',
       title: 'FITNESS',

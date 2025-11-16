@@ -8,6 +8,7 @@ import 'package:projectacademia/features/presentation/my_training/view/my_traini
 import 'package:projectacademia/features/presentation/register/view/register_page.dart';
 import 'package:projectacademia/features/presentation/today/view/today_page.dart';
 import 'package:projectacademia/features/presentation/training/view/training.dart';
+import 'package:projectacademia/features/presentation/widgets/loading_page.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/initial',
@@ -47,6 +48,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/historical',
       builder: (context, state) => const HistoricalPage(),
+    ),
+    GoRoute(
+      path: '/loading',
+      builder: (context, state) => const LoadingPage(),
     ),
   ],
 );

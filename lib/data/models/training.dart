@@ -1,20 +1,26 @@
-// import 'package:freezed_annotation/freezed_annotation.dart';
-// import 'package:flutter_data/flutter_data.dart';
-// import 'exercises.dart';
+import 'package:projectacademia/data/models/exercises.dart';
 
-// part 'training.freezed.dart';
-// part 'training.g.dart';
+class TrainingModel {
+  final String id;
+  final String name;
+  final String type;
+  final List<ExerciseModel> exercises;
 
-// @DataRepository([])
-// @freezed
-// class Training with _$Training {
-//   const factory Training({
-//     required String id,
-//     required String name,
-//     required String type,
-//     required List<Exercise> exercises,
-//   }) = _Training;
+  TrainingModel({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.exercises,
+  });
 
-//   factory Training.fromJson(Map<String, dynamic> json) =>
-//       _$TrainingFromJson(json);
-// }
+  factory TrainingModel.fromJson(Map<String, dynamic> json) {
+    return TrainingModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      type: json['type'] ?? '',
+      exercises: (json['exercises'] as List)
+          .map((e) => ExerciseModel.fromJson(e))
+          .toList(),
+    );
+  }
+}

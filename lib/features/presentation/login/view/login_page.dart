@@ -1,18 +1,22 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
+import 'package:projectacademia/core/providers/token_provider.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _nameController = TextEditingController(text: 'piu2');
-  final TextEditingController _passwordController = TextEditingController(text: '123456');
+class _LoginPageState extends ConsumerState<LoginPage> {
+  final TextEditingController _nameController =
+      TextEditingController(text: 'piu2');
+  final TextEditingController _passwordController =
+      TextEditingController(text: '123456');
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -35,17 +39,24 @@ class _LoginPageState extends State<LoginPage> {
           'password': _passwordController.text,
         }),
       );
+
       print(">>> TESTE: response - ${response.body}");
+
       if (response.statusCode == 200) {
-        // 🔹 Sucesso → navegar
-        context.go('/main');
+        // Converte JSON
+        final json = jsonDecode(response.body);
+        final token = json['access_token'];
+
+        // Salva no provider corretamente
+        ref.read(tokenProvider.notifier).state = token;
+
+        context.go('/loading');
       } else {
-        // 🔹 Erro → mostrar mensagem do servidor, se existir
+        // Mensagem apropriada
         final message = _parseError(response.body);
         _showErrorDialog('Erro ao fazer login: $message');
       }
     } catch (e) {
-      // 🔹 Erro de conexão, timeout, etc
       _showErrorDialog('Erro de conexão. Verifique o servidor ou a rede.');
     } finally {
       setState(() => _isLoading = false);
@@ -115,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 40),
 
-                          // 🔹 Campo de nome
+                          // CAMPO DE NOME
                           TextFormField(
                             controller: _nameController,
                             validator: (v) =>
@@ -151,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 20),
 
-                          // 🔹 Campo de senha
+                          // CAMPO DE SENHA
                           TextFormField(
                             controller: _passwordController,
                             obscureText: true,
@@ -188,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 40),
 
-                          // 🔹 Botão de login
+                          // BOTÃO LOGIN
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
