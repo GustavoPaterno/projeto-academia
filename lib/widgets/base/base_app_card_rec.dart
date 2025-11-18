@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:projectacademia/data/models/exercises.dart';
 
 class BaseCardListRec extends ConsumerStatefulWidget {
   final String title;
   final String? description;
-  final String data;
+  final String date;
+  final List<ExerciseModel> exercises;
 
   const BaseCardListRec({
     super.key,
     required this.title,
     this.description,
-    required this.data,
+    required this.date,
+    required this.exercises,
   });
 
   @override
@@ -18,22 +21,21 @@ class BaseCardListRec extends ConsumerStatefulWidget {
 }
 
 class _BaseCardListRecState extends ConsumerState<BaseCardListRec> {
-  bool expanded = false; // controla se o card está expandido
+  bool expanded = false;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
-        onTap: () {
-          setState(() => expanded = !expanded); // alterna o estado
-        },
+        onTap: () => setState(() => expanded = !expanded),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 250),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: theme.primaryContainer,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -43,67 +45,154 @@ class _BaseCardListRecState extends ConsumerState<BaseCardListRec> {
               ),
             ],
           ),
-          // altura muda conforme expandido ou não
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // título e ícone de expansão
+              // HEADER
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     widget.title,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: theme.onSecondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
                   ),
-
-                  Text("15/02/2025", style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                  Text(
+                    widget.date,
+                    style: TextStyle(
+                      color: theme.onSecondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                    ),),
-
+                    ),
+                  ),
                   Icon(
                     expanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: Theme.of(context).colorScheme.onSecondary,
+                    color: theme.onSecondary,
                   ),
                 ],
               ),
-              // conteúdo extra visível só quando expandido
+
+              // CONTEÚDO EXPANDIDO
               AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:[ 
-                      Text(
-                        widget.description ?? '',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                      // Row(children: [
-                      //   IconButton(onPressed: (){}, icon: Icon(Icons.add), style: ButtonStyle(
-                      //   side: WidgetStateProperty.all(
-                      //     BorderSide(color: Colors.blue, width: 2), // cor e espessura da borda
-                      //   ),
-                      //   foregroundColor: WidgetStateProperty.all(Colors.black),
-                      //   backgroundColor: WidgetStateProperty.all(Colors.white),
-                      // ),),
-                      // ],)
-                  ]),
-                ),
+                duration: const Duration(milliseconds: 200),
                 crossFadeState: expanded
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 100),
+                firstChild: const SizedBox.shrink(),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.description != null)
+                        Text(
+                          widget.description!,
+                          style: TextStyle(
+                            color: theme.onSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+
+                      // LISTA DE EXERCÍCIOS
+                      if (widget.exercises.isEmpty)
+                        Text(
+                          "Nenhum exercício registrado",
+                          style: TextStyle(
+                            color: theme.onSecondary.withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: widget.exercises.map((ex) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: theme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ex.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.onSecondary,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Tipo: ${ex.type}",
+                                    style: TextStyle(
+                                      color: theme.onSecondary,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Séries: ${ex.series}",
+                                    style: TextStyle(
+                                      color: theme.onSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  // LISTA DE EXECUÇÕES
+                                  if (ex.executions.isEmpty)
+                                    Text(
+                                      "Nenhuma execução registrada",
+                                      style: TextStyle(
+                                        color: theme.onSecondary.withOpacity(0.7),
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  else
+                                    Column(
+                                      children: ex.executions.map((exec) {
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.symmetric(vertical: 2),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                "Peso: ${exec.peso} kg",
+                                                style: TextStyle(
+                                                  color: theme.onSecondaryContainer,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Reps: ${exec.repeticoes}",
+                                                style: TextStyle(
+                                                  color: theme.onSecondaryContainer,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Hora: ${exec.hora}",
+                                                style: TextStyle(
+                                                  color: theme.onSecondaryContainer,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

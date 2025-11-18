@@ -23,4 +23,11 @@ class TrainingModel {
           .toList(),
     );
   }
+    Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'type': type,
+      'exercises': exercises.map((e) => e.toJson()).toList(),
+    };
+  }
 }

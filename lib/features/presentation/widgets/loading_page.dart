@@ -63,7 +63,6 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
             print("   Nome        => ${ex.name}");
             print("   Tipo        => ${ex.type}");
             print("   Séries      => ${ex.series}");
-            print("   Repetições  => ${ex.repetitions}");
           }
         }
         print("--------------------------------");
@@ -89,7 +88,6 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
             print("   Nome        => ${ex.name}");
             print("   Tipo        => ${ex.type}");
             print("   Séries      => ${ex.series}");
-            print("   Repetições  => ${ex.repetitions}");
           }
         }
         print("----------------------------");
