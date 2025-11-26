@@ -44,4 +44,7 @@ class UserModel {
           .toList(),
     );
   }
+
+  int get getLevel => level;
+  int get getExp => exp;
 }

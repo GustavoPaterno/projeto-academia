@@ -23,7 +23,7 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
     print(">>> LOADING PAGE: inicializando...");
     try {
       final token = ref.read(tokenProvider);
-
+final user = await ApiService.getCurrentUser(token);
       print(">>> TOKEN LIDO DO PROVIDER:");
       print(token);
 
@@ -35,7 +35,7 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
 
       print(">>> Buscando dados do usuário...");
 
-      final user = await ApiService.getCurrentUser(token);
+      
 
       print(">>> USER CARREGADO COM SUCESSO:");
       print("ID        => ${user.id}");

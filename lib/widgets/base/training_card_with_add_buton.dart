@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projectacademia/features/presentation/training_executing/view/training_executing.dart';
 import '../../data/models/training.dart'; // ajuste para seu path real
 
 class TrainingCardWithAddButton extends StatelessWidget {
@@ -102,28 +103,58 @@ class TrainingCardWithAddButton extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ⭐ Botão de adicionar exercício
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primaryContainer,
-                ),
-                icon: Icon(
-                  Icons.add,
-                  color:
-                      Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-                label: Text(
-                  "Adicionar exercício",
-                  style: TextStyle(
+            Row(
+              children:[ 
+                Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                  ),
+                  icon: Icon(
+                    Icons.add,
                     color:
                         Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
+                  label: Text(
+                    "Adicionar exercício",
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.onInverseSurface,
+                    ),
+                  ),
+                  onPressed: onAddExercise,
                 ),
-                onPressed: onAddExercise,
               ),
-            )
+              SizedBox(width: 40,),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                  ),
+                  child: Text(
+                    "Treinar",
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.onInverseSurface,
+                    ),
+                  ),
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TrainingExecuting(
+                          training: training, // se quiser passar o treino atual
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+           ])
           ],
         ),
       ),

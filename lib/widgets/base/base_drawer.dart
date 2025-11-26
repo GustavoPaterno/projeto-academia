@@ -1,87 +1,132 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:projectacademia/core/providers/user_provider.dart';
 
 class BaseAppDrawer extends ConsumerWidget {
   const BaseAppDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+
+    if (user == null) {
+      return const Drawer(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // XP atual e próximo nível
+    final int currentLevel = user.level;
+    final int currentExp = user.exp;
+    final int expToNextLevel = (currentLevel + 1) * 50; // exemplo: 100xp por level
+    final double progress = currentExp / expToNextLevel;
+
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.onSecondary,
       width: 300,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
       child: Column(
         children: [
           // Cabeçalho
           Container(
             width: double.infinity,
-            height: 221,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-            ),
+            height: 250,
+            color: Theme.of(context).colorScheme.primaryContainer,
             child: Padding(
-              padding: const EdgeInsets.only(right: 30, bottom: 20),
+              padding: const EdgeInsets.only(right: 30, bottom: 20, left: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Avatar
-                  Flexible(
-                    flex: 6,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Stack(
+                  // Avatar e status
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                        ),
+                      ),
+                      Positioned(
+                        right: 4,
+                        bottom: 4,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.white,
+                          child: const CircleAvatar(
+                            radius: 7,
+                            backgroundColor: Colors.green,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Nome do usuário
+                  Text(
+                    user.name,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Barra de XP
+                  Row(
+                    children: [
+                      // Nível atual
+                      Text(
+                        '$currentLevel',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Barra
+                      Expanded(
+                        child: Stack(
                           children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundColor: Colors.white,
-                              child: Icon(
-                                Icons.person,
-                                size: 50,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
+                            Container(
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            Positioned(
-                              right: 4,
-                              bottom: 4,
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.white,
-                                child: CircleAvatar(
-                                  radius: 7,
-                                  backgroundColor: Colors.green, // status online
+                            FractionallySizedBox(
+                              widthFactor: progress.clamp(0.0, 1.0),
+                              child: Container(
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.greenAccent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${currentExp} / $expToNextLevel XP',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.black),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-
-                  const Spacer(flex: 1),
-
-                  // Nome do usuário
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Temporario",
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                Theme.of(context).colorScheme.onPrimaryContainer,
-                          ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Próximo nível
+                      Text(
+                        '${currentLevel + 1}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -90,73 +135,53 @@ class BaseAppDrawer extends ConsumerWidget {
 
           const SizedBox(height: 10),
 
-          // Opções do menu
+          // Menu
           ListTile(
             leading: const Icon(Icons.fitness_center_rounded),
             title: const Text('Meus treinos'),
             subtitle: const Text('Ver meus treinos'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
           const Divider(thickness: .5),
-
           ListTile(
             leading: const Icon(Icons.emoji_events),
             title: const Text('Conquistas'),
             subtitle: const Text('Ver conquistas'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
           const Divider(thickness: .5),
-
           ListTile(
             leading: const Icon(Icons.list_alt),
             title: const Text('Missões'),
             subtitle: const Text('Ver missões'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
           const Divider(thickness: .5),
 
-          const Spacer(flex: 4),
+          const Spacer(),
 
-          const Divider(thickness: .5),
-
+          // Rodapé
           ListTile(
             leading: const Icon(Icons.delete),
             title: const Text('Limpar Cache'),
             subtitle: const Text('Clique para limpar cache'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
           const Divider(thickness: .5),
-
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Configurações (Teste)'),
+            title: const Text('Configurações'),
             subtitle: const Text('Ir para configurações'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
           const Divider(thickness: .5),
-
           ListTile(
             leading: const Icon(Icons.logout_outlined),
             title: const Text('Deslogar'),
             subtitle: const Text('Desconectar da conta'),
-            onTap: () {
-              // Ação do botão
-            },
+            onTap: () {},
           ),
-
-          const SizedBox(height: 10),
-
-          // Rodapé
+          const Divider(thickness: .5),
           SizedBox(
             height: 80,
             child: Container(

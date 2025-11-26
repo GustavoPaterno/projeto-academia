@@ -19,20 +19,20 @@ Widget build(BuildContext context) {
         child: Column(
           children: [
             const SizedBox(height: 30),
-            BaseCardList(
-              title: "TREINO DE HOJE",
-              subtitle: "VER TREINO DE HOJE",
-              leading: Icons.access_alarm_outlined,
-              onTap: () => context.push('/today'),
-            ),
-            const Divider(indent: 40, endIndent: 40, thickness: 0.5),
-            BaseCardList(
-              title: "TREINOS",
-              subtitle: "VER TREINOS",
-              leading: Icons.fitness_center_rounded,
-              onTap: () => context.push('/training'),
-            ),
-            const Divider(indent: 40, endIndent: 40, thickness: 0.5),
+            // BaseCardList(
+            //   title: "TREINO DE HOJE",
+            //   subtitle: "VER TREINO DE HOJE",
+            //   leading: Icons.access_alarm_outlined,
+            //   onTap: () => context.push('/today'),
+            // ),
+            // const Divider(indent: 40, endIndent: 40, thickness: 0.5),
+            // BaseCardList(
+            //   title: "TREINOS",
+            //   subtitle: "VER TREINOS",
+            //   leading: Icons.fitness_center_rounded,
+            //   onTap: () => context.push('/training'),
+            // ),
+            // const Divider(indent: 40, endIndent: 40, thickness: 0.5),
             BaseCardList(
               title: "MEUS TREINOS",
               subtitle: "VER MEUS TREINOS",
