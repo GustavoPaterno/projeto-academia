@@ -128,6 +128,8 @@ class TrainingCardWithAddButton extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 40,),
+              
+              SizedBox(width: 40,),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(

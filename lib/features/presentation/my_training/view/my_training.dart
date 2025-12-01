@@ -186,7 +186,23 @@ Future addTraining(
   }
 }
 
+final List<String> predefinedExercises = [
+  "Supino",
+  "Agachamento",
+  "Leg Press",
+  "Puxada na Barra",
+  "Rosca Direta",
+];
 
+final List<String> predefinedTypes = [
+  "Peito",
+  "Costas",
+  "Pernas",
+  "Bíceps",
+  "Tríceps",
+  "Ombro",
+  "Abdômen",
+];
 
 Future<void> showAddTrainingDialog({
   required BuildContext context,
@@ -228,47 +244,250 @@ Future<void> showAddTrainingDialog({
   );
 }
 
+final Map<String, List<String>> exercisesByType = {
+  " ": [' '],
+  "Peito": [
+    "Supino Reto",
+    "Supino Inclinado",
+    "Supino Declinado",
+    "Crucifixo Reto",
+    "Crucifixo Inclinado",
+    "Flexão Tradicional",
+    "Flexão com Apoio Elevado",
+    "Peck Deck",
+    "Pullover",
+    "Crossover",
+  ],
+  "Costas": [
+    "Puxada na Barra",
+    "Puxada na Frente",
+    "Puxada por Trás",
+    "Remada Curvada",
+    "Remada Unilateral",
+    "Remada Baixa",
+    "Pulldown",
+    "Levantamento Terra",
+    "Hiperextensão",
+    "Pull-over com Halter",
+  ],
+  "Pernas": [
+    "Agachamento Livre",
+    "Agachamento Hack",
+    "Leg Press 45°",
+    "Leg Press Horizontal",
+    "Cadeira Extensora",
+    "Cadeira Flexora",
+    "Stiff",
+    "Afundo",
+    "Panturrilha em Pé",
+    "Panturrilha Sentado",
+  ],
+  "Bíceps": [
+    "Rosca Direta Barra",
+    "Rosca Direta Halter",
+    "Rosca Alternada",
+    "Rosca Martelo",
+    "Rosca Scott",
+    "Rosca Concentrada",
+    "Rosca 21",
+    "Rosca Inversa",
+    "Rosca Spider",
+    "Rosca Corda",
+  ],
+  "Tríceps": [
+    "Tríceps Testa",
+    "Tríceps Corda",
+    "Tríceps Barra V",
+    "Tríceps Coice Halter",
+    "Mergulho Paralelas",
+    "Tríceps Francês",
+    "Tríceps Overhead",
+    "Tríceps Cross",
+    "Tríceps Supinado",
+    "Kickback",
+  ],
+  "Ombro": [
+    "Desenvolvimento Militar",
+    "Desenvolvimento Halter",
+    "Elevação Lateral",
+    "Elevação Frontal",
+    "Remada Alta",
+    "Arnold Press",
+    "Crucifixo Inverso",
+    "Face Pull",
+    "Elevação Posterior",
+    "Shrug",
+  ],
+  "Abdômen": [
+    "Prancha",
+    "Abdominal Crunch",
+    "Abdominal Bicicleta",
+    "Elevação de Pernas",
+    "Abdominal Oblíquo",
+    "Abdominal com Bola",
+    "Abdominal Invertido",
+    "Prancha Lateral",
+    "Rollout",
+    "V-up",
+  ],
+};
+
 
 Future<void> showAddExerciseDialog({
   required BuildContext context,
   required Function(String name, String type, int series) onConfirm,
 }) async {
-  final nameCtrl = TextEditingController();
-  final typeCtrl = TextEditingController();
   final seriesCtrl = TextEditingController();
+
+  String selectedType = exercisesByType.keys.first; // tipo inicial
+  List<String> filteredExercises = exercisesByType[selectedType]!; // lista de exercícios do tipo
+  String selectedName = filteredExercises.first; // exercício inicial
+
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: const Text("Adicionar exercício"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Dropdown de tipo
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: const InputDecoration(labelText: "Tipo"),
+                  items: exercisesByType.keys.map((type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedType = value;
+                        filteredExercises = exercisesByType[selectedType]!;
+                        selectedName = filteredExercises.first;
+                      });
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 10),
+
+                // Dropdown de exercício (filtrado pelo tipo)
+                DropdownButtonFormField<String>(
+                  value: selectedName,
+                  decoration: const InputDecoration(labelText: "Exercício"),
+                  items: filteredExercises.map((exercise) {
+                    return DropdownMenuItem<String>(
+                      value: exercise,
+                      child: Text(exercise),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedName = value;
+                      });
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 10),
+
+                // Campo de séries
+                TextField(
+                  controller: seriesCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: "Séries"),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  onConfirm(
+                    selectedName,
+                    selectedType,
+                    int.tryParse(seriesCtrl.text.trim()) ?? 0,
+                  );
+                  Navigator.pop(context);
+                },
+                child: const Text("Adicionar"),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+Future<void> showEditTrainingDialog({
+  required BuildContext context,
+  required String currentName,
+  required String currentType,
+  required Function(String name, String type) onConfirm,
+}) async {
+  final nameCtrl = TextEditingController(text: currentName);
+  String selectedType = currentType;
 
   await showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: const Text("Adicionar exercício"),
+        title: const Text("Editar treino"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: "Nome")),
-            TextField(controller: typeCtrl, decoration: const InputDecoration(labelText: "Tipo")),
-            TextField(controller: seriesCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Séries")),
-            ],
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: "Nome do treino"),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: selectedType,
+              decoration: const InputDecoration(labelText: "Tipo"),
+              items: predefinedTypes.map((type) {
+                return DropdownMenuItem<String>(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) selectedType = value;
+              },
+            ),
+          ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar")),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
           ElevatedButton(
             onPressed: () {
               onConfirm(
                 nameCtrl.text.trim(),
-                typeCtrl.text.trim(),
-                int.tryParse(seriesCtrl.text.trim()) ?? 0,
+                selectedType,
               );
               Navigator.pop(context);
             },
-            child: const Text("Adicionar"),
-          )
+            child: const Text("Salvar"),
+          ),
         ],
       );
     },
   );
 }
+
+
 }

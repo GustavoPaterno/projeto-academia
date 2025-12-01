@@ -29,6 +29,18 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget  {
       toolbarHeight: toolbarHeight ?? 100,
       backgroundColor: theme.primaryContainer,
       centerTitle: true,
+      actions: [
+        Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            );
+          },
+        ),
+      ],
     );
   }
   

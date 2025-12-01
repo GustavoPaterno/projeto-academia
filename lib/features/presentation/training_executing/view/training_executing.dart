@@ -120,7 +120,7 @@ class TrainingExecutingState extends ConsumerState<TrainingExecuting> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: 2, // se tiver mais dias/treinos, ajustar
+              itemCount: 1, // se tiver mais dias/treinos, ajustar
               onPageChanged: (value) {
                 ref.read(TrainingExecutingPageSelectProvider.notifier).state = value;
               },
@@ -232,7 +232,7 @@ class TrainingExecutingState extends ConsumerState<TrainingExecuting> {
             padding: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(2, (index) {
+              children: List.generate(1, (index) {
                 final isSelected = index == selectedPage;
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 100),
@@ -341,26 +341,31 @@ Future<void> salvarExecucaoBackend(
 
 class Level{
   
-  void expUp(UserModel user, ref){
-    int exp = user.getExp;
-    int level = user.getLevel;
-    exp += 20;
-    if(exp >= (level +1) * 50){
-      levelUp(user, ref);
-    }
-    saveLevelExpBackend(
-      user.id,
-      ref.read(tokenProvider),
-      level,
-      exp,
-    );
+    void expUp(UserModel user, ref) {
+      int exp = user.getExp + 20; // adiciona XP ganho
+      int level = user.getLevel;
+
+      // Loop para múltiplos level ups se necessário
+      while (exp >= (level + 1) * 50) {
+        exp -= (level + 1) * 50; // subtrai XP necessário para subir
+        level += 1;
+        print("Level up! Novo level: $level, XP restante: $exp");
+      }
+      saveLevelExpBackend(
+        user.id,
+        ref.read(tokenProvider),
+        level,
+        exp,
+      );
   }
 
   void levelUp(UserModel user, ref){
     int level = user.getLevel;
     int exp = user.getExp;
+    print(">>> TESTE: Level: $level, exp: $exp");
+    exp -= (level) * 50;
     level +=1;
-    exp = 0;
+    print(">>> TESTE: Level: $level, exp: $exp");
     saveLevelExpBackend(
       user.id,
       ref.read(tokenProvider),
@@ -385,7 +390,7 @@ class Level{
       'level': level,
       'exp': exp,
     });
-
+      print("salvando level e exp no backend: level: $level, exp: $exp");
      final execResponse = await http.post(
         Uri.parse('${ApiService.baseUrl}/user/$userId'),
         headers: headers,

@@ -12,35 +12,41 @@ class HistoricalPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider); // pega o usuário atual
 
-    return BaseAppScaffold(
-      title: 'HISTÓRICO',
-      leadingOnTap: BackButton(onPressed: () => context.pop()),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // Caso ainda não existam históricos
-            if (user!.historical.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: Text(
-                  "Nenhum histórico encontrado.",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onSurface,
+    return WillPopScope(
+      onWillPop: () async {
+        context.go('/main');
+        return false; // impede o pop normal
+      },
+      child: BaseAppScaffold(
+        title: 'HISTÓRICO',
+        leadingOnTap: BackButton(
+          onPressed: () => context.go('/main'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              if (user!.historical.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: Text(
+                    "Nenhum histórico encontrado.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
-              ),
 
-            // Lista de cards
-            for (var h in user!.historical)
-              BaseCardListRec(
-                title: h.name,
-                description: h.type,
-                date: h.dia,
-                exercises: h.exercises,
-              ),
-          ],
+              for (var h in user!.historical)
+                BaseCardListRec(
+                  title: h.name,
+                  description: h.type,
+                  date: h.dia,
+                  exercises: h.exercises,
+                ),
+            ],
+          ),
         ),
       ),
     );
