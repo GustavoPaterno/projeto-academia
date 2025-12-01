@@ -21,6 +21,69 @@ class MyTraining extends ConsumerStatefulWidget {
 }
 
 class MyTrainingState extends ConsumerState<MyTraining> {
+  
+  Future<void> updateTraining(String trainingId, String name, String type, List<ExerciseModel> exercises) async {
+  final token = ref.read(tokenProvider);
+  final userId = ref.read(userProvider)!.id;
+
+  final uri = Uri.parse('http://192.168.15.37:8000/user/$trainingId/training/update');
+  final updatedTraining = {
+    "name": name,
+    "type": type,
+    "exercises": exercises.map((e) => e.toJson()).toList(),
+  };
+  print("Enviando body para updateExercise: ${jsonEncode(updatedTraining)} e ${uri}");
+  final response = await http.post(uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'X-API-Key': token,
+      },
+      body: jsonEncode(updatedTraining));
+
+  if (response.statusCode == 200) {
+    await ref.read(userProvider.notifier).loadUser(userId, token);
+  } else {
+    print("Erro ao atualizar treino: ${response.body}");
+  }
+}
+
+
+    Future<void> updateExercise(
+  String trainingId,
+  String exerciseId,
+  String name,
+  String type,
+  int series,
+) async {
+  final token = ref.read(tokenProvider);
+  final uri = Uri.parse(
+      'http://192.168.15.37:8000/training/$trainingId/exercises/$exerciseId');
+
+  final updatedExercise = {
+    "name": name,
+    "type": type,
+    "series": series,
+    "executions": []  // importante incluir
+  };
+  print("Enviando body para updateExercise: ${jsonEncode(updatedExercise)}");
+
+  final response = await http.post(
+    uri,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+      'X-API-Key': token,
+    },
+    body: jsonEncode(updatedExercise),
+  );
+
+  if (response.statusCode == 200) {
+    await ref.read(userProvider.notifier).loadUser(ref.read(userProvider)!.id, token);
+  } else {
+    print("Erro ao atualizar exercício: ${response.statusCode} - ${response.body}");
+  }
+}
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider); // pega usuário logado
@@ -59,7 +122,28 @@ class MyTrainingState extends ConsumerState<MyTraining> {
                           showAddExerciseDialog(
                             context: context,
                             onConfirm: (name, type, series) async {
-                              addExercise(name, type, series, user.id, t.id );
+                              addExercise(name, type, series, user.id, t.id);
+                            },
+                          );
+                        },
+                        onEditTraining: (name, type) {
+                          showEditTrainingDialog(
+                            context: context,
+                            currentName: t.name,
+                            currentType: t.type,
+                            onConfirm: (newName, newType) {
+                              updateTraining(t.id, newName, newType, t.exercises);
+                            },
+                          );
+                        },
+                        onEditExercise: (exercise, name, type, series) {
+                          showEditExerciseDialog(
+                            context: context,
+                            currentName: exercise.name,
+                            currentType: exercise.type,
+                            currentSeries: exercise.series,
+                            onConfirm: (newName, newType, newSeries) {
+                              updateExercise(t.id, exercise.id!, newName, newType, newSeries);
                             },
                           );
                         },
@@ -209,43 +293,58 @@ Future<void> showAddTrainingDialog({
   required Function(String name, String type) onConfirm,
 }) async {
   final nameCtrl = TextEditingController();
-  final typeCtrl = TextEditingController();
+  String selectedType = predefinedTypes[0];
 
   await showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: const Text("Adicionar exercício"),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text("Adicionar treino"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: "Nome")),
-            TextField(controller: typeCtrl, decoration: const InputDecoration(labelText: "Tipo")),
-            ],
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: "Nome do treino"),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: selectedType,
+              decoration: const InputDecoration(labelText: "Tipo"),
+              items: predefinedTypes
+                  .map((type) => DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(type),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) selectedType = value;
+              },
+            ),
+          ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar")),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
           ElevatedButton(
             onPressed: () {
-              onConfirm(
-                nameCtrl.text.trim(),
-                typeCtrl.text.trim()
-              );
+              onConfirm(nameCtrl.text.trim(), selectedType);
               Navigator.pop(context);
             },
             child: const Text("Adicionar"),
-          )
+          ),
         ],
       );
     },
   );
 }
 
+
 final Map<String, List<String>> exercisesByType = {
-  " ": [' '],
   "Peito": [
     "Supino Reto",
     "Supino Inclinado",
@@ -332,16 +431,14 @@ final Map<String, List<String>> exercisesByType = {
   ],
 };
 
-
 Future<void> showAddExerciseDialog({
   required BuildContext context,
   required Function(String name, String type, int series) onConfirm,
 }) async {
   final seriesCtrl = TextEditingController();
-
-  String selectedType = exercisesByType.keys.first; // tipo inicial
-  List<String> filteredExercises = exercisesByType[selectedType]!; // lista de exercícios do tipo
-  String selectedName = filteredExercises.first; // exercício inicial
+  String selectedType = exercisesByType.keys.first;
+  List<String> filteredExercises = exercisesByType[selectedType]!;
+  String selectedName = filteredExercises.first;
 
   await showDialog(
     context: context,
@@ -349,56 +446,50 @@ Future<void> showAddExerciseDialog({
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             title: const Text("Adicionar exercício"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Dropdown de tipo
                 DropdownButtonFormField<String>(
                   value: selectedType,
                   decoration: const InputDecoration(labelText: "Tipo"),
-                  items: exercisesByType.keys.map((type) {
-                    return DropdownMenuItem<String>(
-                      value: type,
-                      child: Text(type),
-                    );
-                  }).toList(),
+                  items: exercisesByType.keys
+                      .map((type) => DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     if (value != null) {
                       setState(() {
                         selectedType = value;
                         filteredExercises = exercisesByType[selectedType]!;
-                        selectedName = filteredExercises.first;
+                        if (!filteredExercises.contains(selectedName)) {
+                          selectedName = filteredExercises.first;
+                        }
                       });
                     }
                   },
                 ),
-
                 const SizedBox(height: 10),
-
-                // Dropdown de exercício (filtrado pelo tipo)
                 DropdownButtonFormField<String>(
-                  value: selectedName,
+                  value: filteredExercises.contains(selectedName)
+                      ? selectedName
+                      : filteredExercises.first,
                   decoration: const InputDecoration(labelText: "Exercício"),
-                  items: filteredExercises.map((exercise) {
-                    return DropdownMenuItem<String>(
-                      value: exercise,
-                      child: Text(exercise),
-                    );
-                  }).toList(),
+                  items: filteredExercises
+                      .map((exercise) => DropdownMenuItem<String>(
+                            value: exercise,
+                            child: Text(exercise),
+                          ))
+                      .toList(),
                   onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedName = value;
-                      });
-                    }
+                    if (value != null) selectedName = value;
                   },
                 ),
-
                 const SizedBox(height: 10),
-
-                // Campo de séries
                 TextField(
                   controller: seriesCtrl,
                   keyboardType: TextInputType.number,
@@ -443,7 +534,8 @@ Future<void> showEditTrainingDialog({
     context: context,
     builder: (context) {
       return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: const Text("Editar treino"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -454,14 +546,16 @@ Future<void> showEditTrainingDialog({
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
-              value: selectedType,
+              value: predefinedTypes.contains(selectedType)
+                  ? selectedType
+                  : predefinedTypes[0],
               decoration: const InputDecoration(labelText: "Tipo"),
-              items: predefinedTypes.map((type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
+              items: predefinedTypes
+                  .map((type) => DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(type),
+                      ))
+                  .toList(),
               onChanged: (value) {
                 if (value != null) selectedType = value;
               },
@@ -475,10 +569,7 @@ Future<void> showEditTrainingDialog({
           ),
           ElevatedButton(
             onPressed: () {
-              onConfirm(
-                nameCtrl.text.trim(),
-                selectedType,
-              );
+              onConfirm(nameCtrl.text.trim(), selectedType);
               Navigator.pop(context);
             },
             child: const Text("Salvar"),
@@ -489,5 +580,100 @@ Future<void> showEditTrainingDialog({
   );
 }
 
+Future<void> showEditExerciseDialog({
+  required BuildContext context,
+  required String currentName,
+  required String currentType,
+  required int currentSeries,
+  required Function(String name, String type, int series) onConfirm,
+}) async {
+  final seriesCtrl = TextEditingController(text: currentSeries.toString());
+  String selectedType = exercisesByType.containsKey(currentType)
+      ? currentType
+      : exercisesByType.keys.first;
+  List<String> filteredExercises = exercisesByType[selectedType]!;
+  String selectedName = filteredExercises.contains(currentName)
+      ? currentName
+      : filteredExercises.first;
 
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: const Text("Editar exercício"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: const InputDecoration(labelText: "Tipo"),
+                  items: exercisesByType.keys
+                      .map((type) => DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedType = value;
+                        filteredExercises = exercisesByType[selectedType]!;
+                        if (!filteredExercises.contains(selectedName)) {
+                          selectedName = filteredExercises.first;
+                        }
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: filteredExercises.contains(selectedName)
+                      ? selectedName
+                      : filteredExercises.first,
+                  decoration: const InputDecoration(labelText: "Exercício"),
+                  items: filteredExercises
+                      .map((exercise) => DropdownMenuItem<String>(
+                            value: exercise,
+                            child: Text(exercise),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) selectedName = value;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: seriesCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: "Séries"),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  onConfirm(
+                    selectedName,
+                    selectedType,
+                    int.tryParse(seriesCtrl.text.trim()) ?? currentSeries,
+                  );
+                  Navigator.pop(context);
+                },
+                child: const Text("Salvar"),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 }

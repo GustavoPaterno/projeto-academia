@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:projectacademia/features/presentation/training_executing/view/training_executing.dart';
-import '../../data/models/training.dart'; // ajuste para seu path real
+import '../../data/models/training.dart';
+import '../../data/models/exercises.dart';
 
 class TrainingCardWithAddButton extends StatelessWidget {
   final TrainingModel training;
   final VoidCallback onAddExercise;
+  final Function(String name, String type) onEditTraining;
+  final Function(ExerciseModel exercise, String newName, String newType, int newSeries) onEditExercise;
 
   const TrainingCardWithAddButton({
     super.key,
     required this.training,
     required this.onAddExercise,
+    required this.onEditTraining,
+    required this.onEditExercise,
   });
 
   @override
@@ -22,30 +27,43 @@ class TrainingCardWithAddButton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ⭐ Nome do treino
-            Text(
-              training.name,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+            // ========================
+            // Nome do treino + editar
+            // ========================
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  training.name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    // Chama função de editar treino
+                    onEditTraining(training.name, training.type);
+                  },
+                ),
+              ],
             ),
 
             const SizedBox(height: 4),
 
-            // ⭐ Tipo do treino
+            // Tipo do treino
             Text(
               training.type,
               style: TextStyle(
-                color:
-                    Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
 
             const SizedBox(height: 12),
 
-            // ⭐ Lista de exercícios
+            // Lista de exercícios
             if (training.exercises.isEmpty)
               Text(
                 "Nenhum exercício ainda.",
@@ -78,21 +96,29 @@ class TrainingCardWithAddButton extends StatelessWidget {
                               ex.type,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.6),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ],
                         ),
 
-                        // Séries
-                        Text(
-                          "${ex.series} séries",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              "${ex.series} séries",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Botão de editar exercício
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                onEditExercise(ex, ex.name, ex.type, ex.series);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -102,61 +128,43 @@ class TrainingCardWithAddButton extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // ⭐ Botão de adicionar exercício
+            // Botões adicionar exercício e treinar
             Row(
-              children:[ 
-                Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton.icon(
+              children: [
+                ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   icon: Icon(
                     Icons.add,
-                    color:
-                        Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                   label: Text(
                     "Adicionar exercício",
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).colorScheme.onInverseSurface,
-                    ),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onInverseSurface),
                   ),
                   onPressed: onAddExercise,
                 ),
-              ),
-              SizedBox(width: 40,),
-              
-              SizedBox(width: 40,),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
+                const SizedBox(width: 16),
+                ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   child: Text(
                     "Treinar",
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).colorScheme.onInverseSurface,
-                    ),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onInverseSurface),
                   ),
-                  onPressed: (){
+                  onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TrainingExecuting(
-                          training: training, // se quiser passar o treino atual
-                        ),
+                        builder: (context) => TrainingExecuting(training: training),
                       ),
                     );
                   },
                 ),
-              ),
-           ])
+              ],
+            ),
           ],
         ),
       ),
